@@ -21,7 +21,7 @@ public class AjustesActivity extends AppCompatActivity implements ProfileAdapter
 
     private List<ProfileItem> profileItems;
     private ProfileAdapter adapter;
-    ImageView button;
+    ImageView button1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,12 @@ public class AjustesActivity extends AppCompatActivity implements ProfileAdapter
 
         adapter = new ProfileAdapter(profileItems, this);
         recyclerView.setAdapter(adapter);
+
+        button1 = findViewById(R.id.back_login5);
+        button1.setOnClickListener(v -> {
+            Intent a = new Intent(getApplicationContext(), Principal1.class);
+            startActivity(a);
+        });
     }
 
     @Override
@@ -65,14 +71,6 @@ public class AjustesActivity extends AppCompatActivity implements ProfileAdapter
 
         builder.show();
 
-
-
-
-
-        button = findViewById(R.id.back_login5);
-        button.setOnClickListener(v -> {
-            Intent a = new Intent(getApplicationContext(), Principal1.class);
-            startActivity(a);
-        });
     }
+
 }
