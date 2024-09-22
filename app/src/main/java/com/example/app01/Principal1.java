@@ -272,19 +272,5 @@ public class Principal1 extends AppCompatActivity {
         builder.show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
 
-        if (id == android.R.id.home) {
-            DrawerLayout dl = findViewById(R.id.registrarse);
-            if (dl.isDrawerOpen(GravityCompat.START)) {
-                dl.closeDrawer(GravityCompat.START);
-            } else {
-                dl.openDrawer(GravityCompat.START);
-            }
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
