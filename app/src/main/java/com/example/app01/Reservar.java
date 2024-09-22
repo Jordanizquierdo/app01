@@ -59,7 +59,7 @@ public class Reservar extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (selectedTimeSlot != null) {
-                    confirmationText.setVisibility(View.VISIBLE);
+                    Toast.makeText(Reservar.this, "Espere confirmación", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(Reservar.this, "Por favor selecciona una hora", Toast.LENGTH_SHORT).show();
                 }
