@@ -24,12 +24,12 @@ public class HistorialActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         consultas = new ArrayList<>();
 
-        // Agregar consultas
+        //Agregar consultas
         consultas.add(new Consulta("Firulais", "5/10/2023"));
         consultas.add(new Consulta("Firulais", "2/3/2024"));
         consultas.add(new Consulta("Rony", "5/3/2024"));
 
-        // Inicializar el adaptador con el listener de clic y contexto
+        //Inicializar el adaptador con el listener de clic y contexto
         adapter = new HistorialAdapter(consultas, this, new HistorialAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Consulta consulta) {
@@ -38,7 +38,7 @@ public class HistorialActivity extends AppCompatActivity {
             }
         });
 
-        // Configurar el adaptador en el RecyclerView
+        //Configurar el adaptador en el RecyclerView
         recyclerView.setAdapter(adapter);
 
         button = findViewById(R.id.back_login2);

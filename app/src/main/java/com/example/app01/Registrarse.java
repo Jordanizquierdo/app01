@@ -40,10 +40,10 @@ public class Registrarse extends AppCompatActivity {
             } else if (!password.equals(password2)) {
                 Toast.makeText(Registrarse.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             } else {
-                // Llamar al método para guardar los datos
+                //Llamar al método para guardar los datos
                 guardarUsuario(email, password);
 
-                // Iniciar la nueva Activity
+                //Iniciar la nueva Activity
                 Intent intent = new Intent(Registrarse.this, MainActivity.class);
                 startActivity(intent);
             }

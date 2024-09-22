@@ -25,7 +25,7 @@ public class DetalleConsultaActivity extends AppCompatActivity {
         diagnosticoDetalle = findViewById(R.id.diagnosticoDetalle);
         tratamientoDetalle = findViewById(R.id.tratamientoDetalle);
 
-        // Obtener los datos del Intent
+        //Obtener los datos del Intent
         Intent intent = getIntent();
         String nombreMascota = intent.getStringExtra("nombreMascota");
         String fecha = intent.getStringExtra("fecha");
@@ -33,7 +33,7 @@ public class DetalleConsultaActivity extends AppCompatActivity {
         String diagnostico = intent.getStringExtra("diagnostico");
         String tratamiento = intent.getStringExtra("tratamiento");
 
-        // Establecer los datos en los TextViews
+        //Establecer los datos en los TextViews
         nombreMascotaDetalle.setText(nombreMascota);
         fechaDetalle.setText(fecha);
         veterinarioDetalle.setText(veterinario);

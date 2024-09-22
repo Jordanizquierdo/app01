@@ -31,19 +31,19 @@ public class Reservar extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservar);
 
-        // Inicializar vistas
+        //Inicializar vistas
         calendarView = findViewById(R.id.calendarView);
         timeSlotsRecyclerView = findViewById(R.id.timeSlotsRecyclerView);
         confirmButton = findViewById(R.id.confirmButton);
-//        confirmationText = findViewById(R.id.confirmationText);
 
-        // Horarios de ejemplo
+
+        //Horarios de ejemplo
         timeSlots = new ArrayList<>();
         timeSlots.add(new Horario("9:00 AM", "9:20 AM"));
         timeSlots.add(new Horario("9:20 AM", "9:40 AM"));
         timeSlots.add(new Horario("9:40 AM", "10:00 AM"));
 
-        // Configurar el RecyclerView
+        //Configurar el RecyclerView
         timeSlotsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         TimeSlotAdapter adapter = new TimeSlotAdapter(timeSlots, new TimeSlotAdapter.OnItemClickListener() {
             @Override
@@ -54,7 +54,7 @@ public class Reservar extends AppCompatActivity {
         });
         timeSlotsRecyclerView.setAdapter(adapter);
 
-        // Acción del botón de confirmar
+        //botón de confirmar
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

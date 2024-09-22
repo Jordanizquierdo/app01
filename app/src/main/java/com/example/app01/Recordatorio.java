@@ -35,17 +35,17 @@ public class Recordatorio extends AppCompatActivity {
             return insets;
         });
 
-        // Referencia a los EditText
+        //Referencia a los EditText
         EditText campo1 = findViewById(R.id.name);
         EditText campo2 = findViewById(R.id.cantidad);
         EditText campo3 = findViewById(R.id.intervalo);
         EditText campo4 = findViewById(R.id.desc);
         cal = findViewById(R.id.cal1);
 
-        // Obtenemos la fecha desde Principal1
+        //Obtenemos la fecha desde Principal1
         String fechaRecibida = getIntent().getStringExtra("fecha_seleccionada");
 
-        // Formato para parsear la fecha
+        //Formato para parsear la fecha
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         try {
             assert fechaRecibida != null;
@@ -58,19 +58,19 @@ public class Recordatorio extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-        // Inicializar SharedPreferences
+        //Inicializar SharedPreferences
         sharedPreferences = getSharedPreferences("RecordatorioPrefs", MODE_PRIVATE);
 
-        // Botón para guardar los datos
+        //Botón para guardar los datos
         Button saveButton = findViewById(R.id.buttonGuardar); // Asegúrate de tener este botón en tu layout
         saveButton.setOnClickListener(v -> {
-            // Obtener los valores de los EditText
+            //Obtener los valores de los EditText
             String name = campo1.getText().toString();
             String cantidad = campo2.getText().toString();
             String intervalo = campo3.getText().toString();
             String desc = campo4.getText().toString();
 
-            // Obtener la fecha seleccionada en el CalendarView
+            //Obtener la fecha seleccionada en el CalendarView
             long selectedDate = cal.getDate(); // Fecha en milisegundos
 
             // Guardar los datos en SharedPreferences
@@ -81,7 +81,7 @@ public class Recordatorio extends AppCompatActivity {
             e.putExtra("desc", desc);
             e.putExtra("fecha", selectedDate);
 
-            // Enviar los datos y cerrar la actividad actual
+            //Enviar los datos y cerrar la actividad actual
             setResult(RESULT_OK, e);
             finish();
         });

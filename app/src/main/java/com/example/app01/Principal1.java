@@ -45,7 +45,7 @@ public class Principal1 extends AppCompatActivity {
     List<String> listaMascotas = new ArrayList<>();
     TextView tvPetName;
 
-    // Mapa para almacenar los recordatorios por mascota
+    //Mapa para almacenar los recordatorios por mascota
     Map<String, List<Rtext>> recordatoriosPorMascota = new HashMap<>();
 
     @Override
@@ -56,11 +56,11 @@ public class Principal1 extends AppCompatActivity {
         setSupportActionBar(tb);
         cal = findViewById(R.id.calendar);
 
-        // Configuración de RecyclerView y su adaptador
+        //Configuración de RecyclerView
         RecyclerView recyclerView = findViewById(R.id.lv_reminders);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Inicializar el adaptador con la lista vacía
+        //Inicializar el adaptador con la lista vacía
         adapter = new RecordatorioAdapter(recordatorioList);
         recyclerView.setAdapter(adapter);
 
@@ -104,14 +104,14 @@ public class Principal1 extends AppCompatActivity {
             }
         });
 
-        // Obtener la fecha actual al iniciar la actividad
+        //Obtener la fecha actual al iniciar la actividad
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
         fecha1 = dayOfMonth + "/" + month + "/" + year;
 
-        // Botón para mostrar la fecha actual
+        //Botón para mostrar la fecha actual
         button = findViewById(R.id.b3);
         button.setOnClickListener(v -> {
             if (fecha1 != null) {
@@ -121,25 +121,25 @@ public class Principal1 extends AppCompatActivity {
             }
         });
 
-        // Listener del calendario para cambios de fecha
+        //Listener del calendario para cambios de fecha
         cal.setOnDateChangeListener((calendarView, newYear, newMonth, newDayOfMonth) -> {
             fecha1 = newDayOfMonth + "/" + (newMonth + 1) + "/" + newYear;
             Toast.makeText(Principal1.this, "Fecha seleccionada: " + fecha1, Toast.LENGTH_LONG).show();
         });
 
-        // Inicializar lista de mascotas
+        //Inicializar lista de mascotas
         listaMascotas.add("Firulais");
         listaMascotas.add("Max");
         listaMascotas.add("Luna");
 
-        // Referencia del TextView del nombre de la mascota
+        //Referencia del TextView del nombre de la mascota
         tvPetName = findViewById(R.id.tv_pet_name);
         tvPetName.setText(listaMascotas.get(0));  // Mostrar la primera mascota por defecto
 
-        // Listener para cambiar de mascota al hacer clic en el nombre
+        //Listener para cambiar de mascota al hacer clic en el nombre
         tvPetName.setOnClickListener(v -> mostrarDialogoCambioMascota());
 
-        // Cargar recordatorios para la primera mascota por defecto
+        //Cargar recordatorios para la primera mascota por defecto
         cargarRecordatoriosParaMascota(tvPetName.getText().toString());
     }
 
@@ -148,10 +148,10 @@ public class Principal1 extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RECORDATORIO_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            // Obtener el nombre de la mascota seleccionada
+            //Obtener el nombre de la mascota seleccionada
             String mascotaActual = tvPetName.getText().toString();
 
-            // Recuperar los datos enviados desde Recordatorio
+            //Recuperar los datos enviados desde Recordatorio
             String name = data.getStringExtra("name");
             String cantidadStr = data.getStringExtra("cantidad");
             String intervaloStr = data.getStringExtra("intervalo");
@@ -161,11 +161,11 @@ public class Principal1 extends AppCompatActivity {
             int cantidadDias = Integer.parseInt(cantidadStr);  // Convertir cantidad de días
             int intervaloHoras = Integer.parseInt(intervaloStr);  // Convertir intervalo en horas
 
-            // Inicializar el formato de fecha y la hora actual
+            //Inicializar el formato de fecha y la hora actual
             SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE MMM dd, hh:mm a", Locale.getDefault());
             Calendar calendar = Calendar.getInstance();
 
-            // Usar la fecha seleccionada como base
+            //Usar la fecha seleccionada como base
             try {
                 Date fechaSeleccionada = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(fecha);
                 calendar.setTime(fechaSeleccionada);
@@ -175,16 +175,16 @@ public class Principal1 extends AppCompatActivity {
 
             LocalTime horaActual = LocalTime.now();
             int horas = horaActual.getHour();
-            // Bucle para los días seleccionados
+            //Bucle para los días seleccionados
             for (int i = 0; i < cantidadDias; i++) {
                 // Bucle para los intervalos de horas en cada día (por ejemplo, de la hora actual a las 23)
                 for (int tiempo = horas; tiempo < 24; tiempo += intervaloHoras) {
-                    // Crear la fecha y hora con el intervalo
+                    //Crear la fecha y hora con el intervalo
 
-                    // Formatear la fecha y hora como cadena
+                    //Formatear la fecha y hora como cadena
                     String fechaConHora = dateFormat.format(calendar.getTime());
 
-                    // Crear un nuevo recordatorio con los datos calculados
+                    //Crear un nuevo recordatorio con los datos calculados
                     Rtext nuevoRecordatorio = new Rtext(fechaConHora, tiempo + ": 00", name, desc);
 
                     // Agregar el recordatorio a la lista de la mascota
@@ -203,7 +203,7 @@ public class Principal1 extends AppCompatActivity {
                 calendar.add(Calendar.DATE, 1);
             }
 
-            // Cargar los recordatorios actualizados de la mascota actual
+            //Cargar los recordatorios actualizados de la mascota actual
             cargarRecordatoriosParaMascota(mascotaActual);
         }
     }
@@ -224,14 +224,14 @@ public class Principal1 extends AppCompatActivity {
     }
 
     private void mostrarDialogoCambioMascota() {
-        // Crear un array con las mascotas y añadir opción de crear una nueva
+        //Crea un array con las mascotas y añadir opción de crear una nueva
         String[] opciones = new String[listaMascotas.size() + 1];
         for (int i = 0; i < listaMascotas.size(); i++) {
             opciones[i] = listaMascotas.get(i);
         }
         opciones[listaMascotas.size()] = "Crear nueva mascota";
 
-        // Crear un AlertDialog para seleccionar una opción
+        //Crea un AlertDialog para seleccionar una opción
         AlertDialog.Builder builder = new AlertDialog.Builder(Principal1.this);
         builder.setTitle("Seleccionar mascota");
         builder.setItems(opciones, (dialog, which) -> {

@@ -56,7 +56,7 @@ public class HistorialAdapter extends RecyclerView.Adapter<HistorialAdapter.View
             nombreMascota.setText(consulta.getNombreMascota());
             fecha.setText(consulta.getFecha());
 
-            // Listener para manejar el clic
+            //Listener para manejar el clic
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
