@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Veterinaria</string>
+    <string name="correo">Correo</string>
+    <string name="password">Contraseña</string>
+    <string name="btnIngresar">Iniciar Sesión</string>
+    <string name="btnRegistrar">Registrarse</string>
+    <string name="btnregistrar1">Registrar</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="Ajustes">Ajustes</string>
+    <string name="Historial">Historial consultas</string>
+    <string name="Reservar">Reservar consultas</string>
+
+    <string name="abrir_drawer">Drawer Abierto</string>
+    <string name="cerrar_drawer">Drawer Cerrado</string>
+</resources>
+
+
