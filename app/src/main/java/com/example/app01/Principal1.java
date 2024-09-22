@@ -272,5 +272,10 @@ public class Principal1 extends AppCompatActivity {
         builder.show();
     }
 
+    public void cerrar(View v){
+        Intent a = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(a);
+    }
+
 
 }
