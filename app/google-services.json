@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "681047527710",
+    "project_id": "movil-86f56",
+    "storage_bucket": "movil-86f56.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681047527710:android:d54388a1dd2b02c0ad390f",
+        "android_client_info": {
+          "package_name": "com.example.app01"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7PtZLMKEHl6RGBQRzU4LkwCNPmt-8Xho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

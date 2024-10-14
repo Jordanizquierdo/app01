@@ -28,9 +28,6 @@
             android:name=".HistorialActivity"
             android:exported="false" />
         <activity
-            android:name=".Registrarse"
-            android:exported="false" />
-        <activity
             android:name=".Principal1"
             android:exported="false" />
         <activity
