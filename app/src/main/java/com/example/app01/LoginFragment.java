@@ -4,7 +4,6 @@ import static android.content.ContentValues.TAG;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,18 +21,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class LoginFragment extends Fragment {
 
     private Button loginButton;
     private Button registerButton;  // Agregar el botón de registro
     private EditText emailField, passwordField;
+    private FirebaseFirestore db;
 
     @Nullable
     @Override
@@ -42,34 +38,13 @@ public class LoginFragment extends Fragment {
 
         // Inicializar Firebase correctamente con el contexto del Fragment
         FirebaseApp.initializeApp(requireContext());
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Inicializar campos y botones
         emailField = view.findViewById(R.id.correo);
         passwordField = view.findViewById(R.id.contrasena);
         loginButton = view.findViewById(R.id.button);
         registerButton = view.findViewById(R.id.btn2);  // Inicializar el botón de registro
-
-        // Ejemplo de agregar un usuario a Firestore
-        Map<String, Object> user = new HashMap<>();
-        user.put("first", "Ada");
-        user.put("last", "Lovelace");
-        user.put("born", 1815);
-
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
 
         // Configurar listener del botón de login
         loginButton.setOnClickListener(v -> {
@@ -82,16 +57,8 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            // Recuperar datos de SharedPreferences
-            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-            String storedContrasenia = sharedPreferences.getString(correo, null);
-
-            // Verificar si la contraseña coincide
-            if (storedContrasenia != null && storedContrasenia.equals(contrasenia)) {
-                iniciar();  // Iniciar nueva actividad si las credenciales son correctas
-            } else {
-                Toast.makeText(getActivity(), "Error en las credenciales", Toast.LENGTH_SHORT).show();
-            }
+            // Verificar usuario en Firebase Firestore
+            verificarUsuario(correo, contrasenia);
         });
 
         // Configurar listener del botón de registro
@@ -111,5 +78,32 @@ public class LoginFragment extends Fragment {
     private void iniciar() {
         Intent i = new Intent(getActivity(), Principal1.class);
         startActivity(i);
+    }
+
+    // Verificar si el usuario existe en Firestore
+    private void verificarUsuario(String correo, String contrasenia) {
+        db.collection("users")
+                .whereEqualTo("email", correo)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (!querySnapshot.isEmpty()) {
+                            for (QueryDocumentSnapshot document : querySnapshot) {
+                                String storedContrasenia = document.getString("password");
+                                if (storedContrasenia != null && storedContrasenia.equals(contrasenia)) {
+                                    iniciar();  // Iniciar la actividad
+                                } else {
+                                    Toast.makeText(getActivity(), "Error en las credenciales", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.w(TAG, "Error obteniendo documentos: ", task.getException());
+                        Toast.makeText(getActivity(), "Error al acceder a la base de datos", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

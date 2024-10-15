@@ -1,9 +1,10 @@
 package com.example.app01;
 
-import android.content.Context;
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,22 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class RegistrarseFragment extends Fragment {
 
     EditText emailEditText, passwordEditText, password2EditText;
     Button registrarButton;
     ImageView button;
+    FirebaseFirestore db;
 
     @Nullable
     @Override
@@ -34,6 +46,9 @@ public class RegistrarseFragment extends Fragment {
         password2EditText = view.findViewById(R.id.editTextTextPassword2);
         registrarButton = view.findViewById(R.id.button4);
 
+        FirebaseApp.initializeApp(requireContext());
+        db = FirebaseFirestore.getInstance();
+
         registrarButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString();
             String password = passwordEditText.getText().toString();
@@ -44,19 +59,13 @@ public class RegistrarseFragment extends Fragment {
             } else if (!password.equals(password2)) {
                 Toast.makeText(getContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             } else {
-                // Llamar al método para guardar los datos
-                guardarUsuario(email, password);
-
-                // Iniciar la nueva Activity
-                Intent intent = new Intent(getActivity(),Principal1.class);
-                startActivity(intent);
+                verificarUsuario(email, password);
             }
         });
 
-
         button = view.findViewById(R.id.back_login);
         button.setOnClickListener(v -> {
-            // Cambiar al fragmento de registro
+            // Cambiar al fragmento de login
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, new LoginFragment());
@@ -64,19 +73,47 @@ public class RegistrarseFragment extends Fragment {
             fragmentTransaction.commit();
         });
 
-
-
         return view;
     }
 
-    // guardar el usuario en SharedPreferences
-    private void guardarUsuario(String email, String password) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+    // Verificar si el usuario ya existe en Firestore
+    private void verificarUsuario(String email, String password) {
+        db.collection("users")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            Toast.makeText(getContext(), "El usuario ya existe", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Guardar el nuevo usuario en Firestore
+                            registrarUsuario(email, password);
+                        }
+                    } else {
+                        Log.w(TAG, "Error verificando el usuario: ", task.getException());
+                        Toast.makeText(getContext(), "Error al verificar el usuario", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-        editor.putString(email, password);
-        editor.apply();
+    // Registrar usuario en Firestore
+    private void registrarUsuario(String email, String password) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("email", email);
+        user.put("password", password); // Considera cifrar la contraseña antes de guardarla
 
-        Toast.makeText(getContext(), "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(getContext(), "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
+
+                    // Iniciar la nueva Activity después de registrar
+                    Intent intent = new Intent(getActivity(), Principal1.class);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Error adding document", e);
+                });
     }
 }
