@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- RecyclerView para la lista de mascotas -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMascotas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Botón para agregar una nueva mascota -->
+    <Button
+        android:id="@+id/btnAgregarMascota"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agregar nueva mascota"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/azul1"/>
+</LinearLayout>
