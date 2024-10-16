@@ -14,16 +14,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RecordatorioFragment extends Fragment {
 
     private EditText etNombre, etCantidad, etIntervalo, etDescripcion;
     private Button btnGuardar;
-    private DatabaseReference recordatorioDB;
     private FirebaseFirestore db;
+
+    // Variable para almacenar la mascota seleccionada
+    private String nombreMascota;
 
     @Nullable
     @Override
@@ -41,8 +41,11 @@ public class RecordatorioFragment extends Fragment {
         etDescripcion = view.findViewById(R.id.desc);
         btnGuardar = view.findViewById(R.id.buttonGuardar);
 
-        // Inicializar Firebase Realtime Database (opcional, si también quieres usar Realtime Database)
-        recordatorioDB = FirebaseDatabase.getInstance().getReference("recordatorios");
+        // Obtener la mascota seleccionada desde el bundle
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            nombreMascota = bundle.getString("nombreMascota");
+        }
 
         // Listener para el botón de guardar
         btnGuardar.setOnClickListener(v -> {
@@ -52,12 +55,8 @@ public class RecordatorioFragment extends Fragment {
             String descripcion = etDescripcion.getText().toString().trim();
 
             if (!TextUtils.isEmpty(nombre) && !TextUtils.isEmpty(cantidad) && !TextUtils.isEmpty(intervalo) && !TextUtils.isEmpty(descripcion)) {
-                // Crear un objeto Recordatorio
-                Rtext recordatorio = new Rtext(nombre, cantidad, intervalo, descripcion);
-
-                // Guardar en Firebase Realtime Database (opcional)
-                String id = recordatorioDB.push().getKey(); // Genera un ID único para cada recordatorio
-                recordatorioDB.child(id).setValue(recordatorio); // Almacenar en Realtime Database
+                // Crear un objeto Recordatorio con la mascota seleccionada
+                Rtext recordatorio = new Rtext(nombre, cantidad, intervalo, descripcion, nombreMascota);
 
                 // Guardar en Firestore
                 db.collection("recordatorios")

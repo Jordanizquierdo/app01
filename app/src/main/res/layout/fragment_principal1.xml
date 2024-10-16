@@ -32,12 +32,15 @@
         <!-- TextView for the Pet Name -->
         <TextView
             android:id="@+id/tv_pet_name"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button"
             android:text="Firulais"
+            android:textAlignment="center"
+            android:textColor="@color/white"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"/>
+            android:textStyle="bold" />
 
         <!-- TextView for the Pet Status -->
         <TextView
@@ -48,7 +51,9 @@
             android:textSize="16sp"
             android:layout_marginTop="8dp"/>
 
+
         <!-- CalendarView -->
+
         <CalendarView
             android:id="@+id/calendar"
             android:layout_width="match_parent"

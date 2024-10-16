@@ -17,14 +17,15 @@ public class RecordatorioAdapter extends RecyclerView.Adapter<RecordatorioAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvDate, tvTime, tvTitle, tvDescription;
+        public TextView tvNombre, tvCantidad, tvIntervalo, tvDescripcion, tvMascota;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvDate = itemView.findViewById(R.id.tv_date_bar);
-            tvTime = itemView.findViewById(R.id.tv_time);
-            tvTitle = itemView.findViewById(R.id.tv_title);
-            tvDescription = itemView.findViewById(R.id.tv_description);
+            tvNombre = itemView.findViewById(R.id.name);
+            tvCantidad = itemView.findViewById(R.id.cantidad);
+            tvIntervalo = itemView.findViewById(R.id.intervalo);
+            tvDescripcion = itemView.findViewById(R.id.desc);
+            tvMascota = itemView.findViewById(R.id.nombreMascota);  // Añadir un TextView para mostrar la mascota si es necesario
         }
     }
 
@@ -38,10 +39,11 @@ public class RecordatorioAdapter extends RecyclerView.Adapter<RecordatorioAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Rtext recordatorio = recordatorioList.get(position);
-        holder.tvDate.setText(recordatorio.getDate());
-        holder.tvTime.setText(recordatorio.getTime());
-        holder.tvTitle.setText(recordatorio.getTitle());
-        holder.tvDescription.setText(recordatorio.getDescription());
+        holder.tvNombre.setText(recordatorio.getNombre());
+        holder.tvCantidad.setText(recordatorio.getCantidad());
+        holder.tvIntervalo.setText(recordatorio.getIntervalo());
+        holder.tvDescripcion.setText(recordatorio.getDescripcion());
+        holder.tvMascota.setText(recordatorio.getMascota());  // Mostrar el nombre de la mascota si lo necesitas
     }
 
     @Override
