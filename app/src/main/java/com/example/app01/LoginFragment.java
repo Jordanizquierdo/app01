@@ -76,7 +76,7 @@ public class LoginFragment extends Fragment {
 
     // Método para iniciar la nueva actividad Principal1
     private void iniciar() {
-        Intent i = new Intent(getActivity(), Principal1.class);
+        Intent i = new Intent(getActivity(), activity1.class);
         startActivity(i);
     }
 

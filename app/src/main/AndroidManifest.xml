@@ -19,17 +19,9 @@
             android:name=".Recordatorio"
             android:exported="false" />
         <activity
-            android:name=".Reservar"
+            android:name=".activity1"
             android:exported="false" />
-        <activity
-            android:name=".AjustesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HistorialActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Principal1"
-            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

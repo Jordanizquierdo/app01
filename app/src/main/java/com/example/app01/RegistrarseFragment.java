@@ -108,7 +108,7 @@ public class RegistrarseFragment extends Fragment {
                     Toast.makeText(getContext(), "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
 
                     // Iniciar la nueva Activity después de registrar
-                    Intent intent = new Intent(getActivity(), Principal1.class);
+                    Intent intent = new Intent(getActivity(), activity1.class);
                     startActivity(intent);
                 })
                 .addOnFailureListener(e -> {

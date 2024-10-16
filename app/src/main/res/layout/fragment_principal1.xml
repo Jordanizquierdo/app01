@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@color/azul1"
-    tools:context=".Principal1">
+    tools:context=".Principal1Fragment">
 
     <!-- LinearLayout for the main content -->
     <LinearLayout

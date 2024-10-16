@@ -11,17 +11,18 @@
     tools:context=".Recordatorio">
 
     <!-- Toolbar -->
+
+    <!-- Nombre Recordatorio -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="391dp"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:title="Añadir recordatorio"
         android:titleTextColor="@android:color/white"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-    <!-- Nombre Recordatorio -->
 
     <TextView
         android:id="@+id/textViewNombre"
@@ -97,7 +98,7 @@
     <!-- Seleccione día de inicio -->
     <TextView
         android:id="@+id/textViewFechaInicio"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
@@ -107,7 +108,7 @@
     <CalendarView
         android:id="@+id/cal1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="296dp"
         android:layout_marginLeft="30dp" />
 
     <!-- Botón para añadir recordatorio -->

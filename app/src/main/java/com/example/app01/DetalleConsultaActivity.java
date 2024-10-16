@@ -42,7 +42,7 @@ public class DetalleConsultaActivity extends AppCompatActivity {
 
         button = findViewById(R.id.back1);
         button.setOnClickListener(v -> {
-            Intent a = new Intent(getApplicationContext(), HistorialActivity.class);
+            Intent a = new Intent(getApplicationContext(), HistorialFragment.class);
             startActivity(a);
         });
     }
