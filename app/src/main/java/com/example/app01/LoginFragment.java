@@ -52,10 +52,7 @@ public class LoginFragment extends Fragment {
             String contrasenia = passwordField.getText().toString();
 
             // Comprobar credenciales de administrador
-            if (correo.equals("admin") && contrasenia.equals("admin")) {
-                iniciar();
-                return;
-            }
+
 
             // Verificar usuario en Firebase Firestore
             verificarUsuario(correo, contrasenia);
@@ -75,12 +72,14 @@ public class LoginFragment extends Fragment {
     }
 
     // Método para iniciar la nueva actividad Principal1
-    private void iniciar() {
+    // Modificar el método iniciar para recibir el ID del documento
+    private void iniciar(String userId) {
         Intent i = new Intent(getActivity(), activity1.class);
+        i.putExtra("userId", userId);  // Pasar el ID del usuario
         startActivity(i);
     }
 
-    // Verificar si el usuario existe en Firestore
+    // Modificar verificarUsuario para enviar el ID del documento
     private void verificarUsuario(String correo, String contrasenia) {
         db.collection("users")
                 .whereEqualTo("email", correo)
@@ -92,7 +91,8 @@ public class LoginFragment extends Fragment {
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 String storedContrasenia = document.getString("password");
                                 if (storedContrasenia != null && storedContrasenia.equals(contrasenia)) {
-                                    iniciar();  // Iniciar la actividad
+                                    String userId = document.getId();  // Obtener el ID del documento
+                                    iniciar(userId);  // Iniciar la actividad y pasar el ID
                                 } else {
                                     Toast.makeText(getActivity(), "Error en las credenciales", Toast.LENGTH_SHORT).show();
                                 }
@@ -106,4 +106,5 @@ public class LoginFragment extends Fragment {
                     }
                 });
     }
+
 }

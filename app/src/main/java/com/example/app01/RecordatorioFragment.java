@@ -1,11 +1,17 @@
 package com.example.app01;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,52 +20,86 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class RecordatorioFragment extends Fragment {
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-    private EditText etNombre, etCantidad, etIntervalo, etDescripcion;
-    private Button btnGuardar;
+public class RecordatorioFragment extends Fragment {
+    private CalendarView cal;
+    private SharedPreferences sharedPreferences;
+    Button b1;
+    private String userId;
+    private String nombreMascota;
+    private EditText campo1, campo2, campo3, campo4;
     private FirebaseFirestore db;
 
-    // Variable para almacenar la mascota seleccionada
-    private String nombreMascota;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recordatorio, container, false);
         FirebaseApp.initializeApp(requireContext());
-
-        // Inicializar Firestore
         db = FirebaseFirestore.getInstance();
+        // Referencia a los EditText
+        campo1 = view.findViewById(R.id.name);
+        campo2 = view.findViewById(R.id.cantidad);
+        campo3 = view.findViewById(R.id.intervalo);
+        campo4 = view.findViewById(R.id.desc);
+        cal = view.findViewById(R.id.cal1);
 
-        // Referenciar los elementos del layout
-        etNombre = view.findViewById(R.id.name);
-        etCantidad = view.findViewById(R.id.cantidad);
-        etIntervalo = view.findViewById(R.id.intervalo);
-        etDescripcion = view.findViewById(R.id.desc);
-        btnGuardar = view.findViewById(R.id.buttonGuardar);
-
-        // Obtener la mascota seleccionada desde el bundle
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            nombreMascota = bundle.getString("nombreMascota");
+        if (getArguments() != null) {
+            nombreMascota = getArguments().getString("nombreMascota");
+            userId = getArguments().getString("userId");
         }
 
-        // Listener para el botón de guardar
-        btnGuardar.setOnClickListener(v -> {
-            String nombre = etNombre.getText().toString().trim();
-            String cantidad = etCantidad.getText().toString().trim();
-            String intervalo = etIntervalo.getText().toString().trim();
-            String descripcion = etDescripcion.getText().toString().trim();
+        // Obtenemos la fecha desde Principal1
+        String fechaRecibida = getActivity().getIntent().getStringExtra("fecha_seleccionada");
 
-            if (!TextUtils.isEmpty(nombre) && !TextUtils.isEmpty(cantidad) && !TextUtils.isEmpty(intervalo) && !TextUtils.isEmpty(descripcion)) {
+        // Formato para parsear la fecha
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        try {
+            if (fechaRecibida != null) {
+                Date date = sdf.parse(fechaRecibida);
+                if (date != null) {
+                    // Configurar la fecha en el CalendarView
+                    cal.setDate(date.getTime(), true, true);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace(); // Cambié esto para evitar lanzar RuntimeException
+        }
+
+
+
+        // Botón para guardar los datos
+        Button saveButton = view.findViewById(R.id.buttonGuardar);
+        saveButton.setOnClickListener(v -> {
+            // Obtener los valores de los EditText
+            String name = campo1.getText().toString();
+            String cantidad = campo2.getText().toString();
+            String intervalo = campo3.getText().toString();
+            String desc = campo4.getText().toString();
+
+            // Obtener la fecha seleccionada en el CalendarView
+            long selectedDate = cal.getDate(); // Fecha en milisegundos
+            String fecha = String.valueOf(selectedDate);
+
+
+
+            if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(cantidad) && !TextUtils.isEmpty(intervalo) && !TextUtils.isEmpty(desc)) {
+
                 // Crear un objeto Recordatorio con la mascota seleccionada
-                Rtext recordatorio = new Rtext(nombre, cantidad, intervalo, descripcion, nombreMascota);
+                Rtext2 recordatorio = new Rtext2(name,cantidad,intervalo,desc,fecha);
 
-                // Guardar en Firestore
-                db.collection("recordatorios")
+                // Guardar en Firestore bajo la estructura "user/{userId}/mascotas/{nombreMascota}/recordatorios"
+                db.collection("users").document(userId)  // Asegúrate de que userId no sea nulo
+                        .collection("mascotas")
+                        .document(nombreMascota)  // Asegúrate de que nombreMascota no sea nulo
+                        .collection("recordatorios")
                         .add(recordatorio)
                         .addOnSuccessListener(documentReference -> {
                             Toast.makeText(getActivity(), "Recordatorio guardado en Firestore", Toast.LENGTH_SHORT).show();
@@ -73,18 +113,23 @@ public class RecordatorioFragment extends Fragment {
             } else {
                 Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             }
+
+
+
         });
+
+
+
+
 
         return view;
     }
-
     private void limpiarCampos() {
-        etNombre.setText("");
-        etCantidad.setText("");
-        etIntervalo.setText("");
-        etDescripcion.setText("");
+        campo1.setText("");
+        campo2.setText("");
+        campo3.setText("");
+        campo4.setText("");
     }
-
     private void cargarFragmento(Fragment fragment) {
         // Cambiar al fragmento Principal1Fragment
         requireActivity().getSupportFragmentManager().beginTransaction()
