@@ -119,3 +119,4 @@ public class RegistrarseFragment extends Fragment {
                 });
     }
 }
+
