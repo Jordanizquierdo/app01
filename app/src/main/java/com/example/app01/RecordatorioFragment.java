@@ -25,6 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,27 +53,41 @@ public class RecordatorioFragment extends Fragment {
         campo4 = view.findViewById(R.id.desc);
         cal = view.findViewById(R.id.cal1);
 
+
+        Bundle args = getArguments();
+        String fechaRecibida = null;
+        if (args != null) {
+            fechaRecibida = args.getString("fecha_seleccionada");
+        }
+
+        // Formato para parsear la fecha
+        SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+        // Aquí puedes usar la fecha recibida como lo necesites
+        if (fechaRecibida != null) {
+            try {
+                // Parsear la fecha
+                Date fecha = sdf1.parse(fechaRecibida);
+
+                // Convertir la fecha a milisegundos (Unix timestamp)
+                if (fecha != null) {
+                    long fechaEnMilisegundos = fecha.getTime();
+
+                    // Establecer la fecha en el CalendarView
+                    cal.setDate(fechaEnMilisegundos, true, true);  // Con animación
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         if (getArguments() != null) {
             nombreMascota = getArguments().getString("nombreMascota");
             userId = getArguments().getString("userId");
         }
 
-        // Obtenemos la fecha desde Principal1
-        String fechaRecibida = getActivity().getIntent().getStringExtra("fecha_seleccionada");
-
-        // Formato para parsear la fecha
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        try {
-            if (fechaRecibida != null) {
-                Date date = sdf.parse(fechaRecibida);
-                if (date != null) {
-                    // Configurar la fecha en el CalendarView
-                    cal.setDate(date.getTime(), true, true);
-                }
-            }
-        } catch (ParseException e) {
-            e.printStackTrace(); // Cambié esto para evitar lanzar RuntimeException
-        }
 
 
 
@@ -84,16 +100,19 @@ public class RecordatorioFragment extends Fragment {
             String intervalo = campo3.getText().toString();
             String desc = campo4.getText().toString();
 
-            // Obtener la fecha seleccionada en el CalendarView
-            long selectedDate = cal.getDate(); // Fecha en milisegundos
-            String fecha = String.valueOf(selectedDate);
+            // Obtener la fecha seleccionada en el CalendarView en milisegundos
+            long selectedDateMillis = cal.getDate();
 
+            // Formato para la fecha: "yyyy-MM-dd HH:mm:ss"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
+            // Convertir la fecha seleccionada a este formato
+            String fechaFormateada = sdf.format(new Date(selectedDateMillis));
 
             if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(cantidad) && !TextUtils.isEmpty(intervalo) && !TextUtils.isEmpty(desc)) {
 
-                // Crear un objeto Recordatorio con la mascota seleccionada
-                Rtext2 recordatorio = new Rtext2(name,cantidad,intervalo,desc,fecha);
+                // Crear un objeto Recordatorio con la fecha formateada en "yyyy-MM-dd HH:mm:ss" y en milisegundos
+                Rtext2 recordatorio = new Rtext2(name, cantidad, intervalo, desc, fechaFormateada);
 
                 // Guardar en Firestore bajo la estructura "user/{userId}/mascotas/{nombreMascota}/recordatorios"
                 db.collection("users").document(userId)  // Asegúrate de que userId no sea nulo
@@ -113,10 +132,10 @@ public class RecordatorioFragment extends Fragment {
             } else {
                 Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             }
-
-
-
         });
+
+
+
 
 
 

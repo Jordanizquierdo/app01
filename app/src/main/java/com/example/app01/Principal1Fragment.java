@@ -14,19 +14,33 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,13 +67,10 @@ public class Principal1Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_principal1, container, false);
 
         userId = requireActivity().getIntent().getStringExtra("userId");
-        if (userId != null) {
-            Toast.makeText(getActivity(), "Usuario ID: " + userId, Toast.LENGTH_SHORT).show();
-        }
 
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
-
+        Toolbar tb = view.findViewById(R.id.t1);
         cal = view.findViewById(R.id.calendar);
 
         RecyclerView recyclerView = view.findViewById(R.id.lv_reminders);
@@ -69,6 +80,57 @@ public class Principal1Fragment extends Fragment {
         adapter = new RecordatorioAdapter(recordatorioList);
         recyclerView.setAdapter(adapter);
 
+        // Incorporar el menú lateral de navegación
+        NavigationView nav = view.findViewById(R.id.nav);
+        nav.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.op1) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, new AjustesFragment());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            } else if (id == R.id.op2) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, new HistorialFragment());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            } else if (id == R.id.op3) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, new ReservarFragment());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+            return true;
+        });
+
+        DrawerLayout dl = view.findViewById(R.id.registrarse);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null) {
+            activity.setSupportActionBar(tb);
+
+            // Crea el ActionBarDrawerToggle para controlar el menú lateral
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    activity, dl, tb, R.string.abrir_drawer, R.string.cerrar_drawer);
+
+            // Cambia el color del ícono del Drawer
+            toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.azul1));
+
+            // Agrega el toggle al DrawerLayout
+            dl.addDrawerListener(toggle);
+            toggle.syncState();
+
+            // Configura la acción al hacer clic en el ícono de navegación
+            tb.setNavigationOnClickListener(v -> {
+                if (dl.isDrawerOpen(GravityCompat.START)) {
+                    dl.closeDrawer(GravityCompat.START);
+                } else {
+                    dl.openDrawer(GravityCompat.START);
+                }
+            });
+        }
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
@@ -83,6 +145,7 @@ public class Principal1Fragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("nombreMascota", tvPetName.getText().toString());
                 bundle.putString("userId", userId);
+                bundle.putString("fecha_seleccionada", fecha1);  // Añadir la fecha seleccionada
                 recordatorioFragment.setArguments(bundle);
                 cargarFragmento(recordatorioFragment);
             }
@@ -123,35 +186,82 @@ public class Principal1Fragment extends Fragment {
         CollectionReference recordatoriosRef = db.collection("users").document(userId)
                 .collection("mascotas").document(nombreMascota).collection("recordatorios");
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        // Formato para parsear fechas sin el día de la semana
+        SimpleDateFormat parseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        // Formato para mostrar fechas con el día de la semana
+        SimpleDateFormat displayFormat = new SimpleDateFormat("EEEE, yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
-        LocalTime horaActual = LocalTime.now();
-        int horas = horaActual.getHour();
-        Date ahora = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE MMM dd, hh:mm a", Locale.getDefault());
+        SimpleDateFormat hourMinuteFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());  // Formato de 12 horas con AM/PM
 
         recordatoriosRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                recordatorioList.clear();
+                recordatorioList.clear();  // Limpia la lista antes de agregar los nuevos recordatorios
 
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    String fechaConHora = document.getString("fecha");
                     try {
-                        Date fechaRecordatorio = dateFormat.parse(fechaConHora);
-                        if (fechaRecordatorio != null && fechaRecordatorio.after(ahora)) {
-                            String hora = document.getString("hora");
-                            String titulo = document.getString("titulo");
-                            String descripcion = document.getString("descripcion");
+                        // Obtener el campo "fecha" como una cadena
+                        String fechaConHora = document.getString("fecha");
 
-                            Rtext a = new Rtext(fechaConHora, hora, titulo, descripcion);
-                            recordatorioList.add(a);
+                        if (fechaConHora != null) {
+                            Date fechaRecordatorio;
 
-                            // Verificación: loguear cada recordatorio agregado
-                            Log.d("Recordatorio", "Añadido: " + titulo + ", " + descripcion + ", " + fechaConHora);
+                            // Verificar si la cadena es un número (timestamp)
+                            if (fechaConHora.matches("\\d+")) {
+                                // Convertir el timestamp en milisegundos a una fecha
+                                long timestamp = Long.parseLong(fechaConHora);
+                                fechaRecordatorio = new Date(timestamp);
+                            } else {
+                                // Parsear la fecha sin el día de la semana
+                                fechaRecordatorio = parseFormat.parse(fechaConHora);
+                            }
+
+                            String titulo = document.getString("name");
+                            String descripcion = document.getString("desc");
+                            String cantidad = document.getString("cantidad");  // Días
+                            String intervalo = document.getString("intervalo");  // Horas
+
+                            // Validación de cantidad e intervalo
+                            int cantidadDias = (cantidad != null) ? Integer.parseInt(cantidad) : 0;
+                            int intervaloHoras = (intervalo != null) ? Integer.parseInt(intervalo) : 0;
+
+                            // Crear un objeto Calendar basado en la fecha obtenida
+                            calendar.setTime(fechaRecordatorio);
+                            calendar.set(Calendar.HOUR_OF_DAY, 0);  // Reiniciar horas a las 0:00
+                            calendar.set(Calendar.MINUTE, 0);       // Reiniciar minutos a las 0
+
+                            // Generar recordatorios por el número de días y el intervalo de horas
+                            for (int i = 0; i < cantidadDias; i++) {
+                                for (int tiempo = 0; tiempo < 24; tiempo += intervaloHoras) {
+                                    // Sumar el intervalo de horas
+                                    calendar.add(Calendar.HOUR_OF_DAY, intervaloHoras);
+
+                                    // Formatear la nueva hora solo con hora y minutos
+
+                                    String horaFormateada = hourMinuteFormat.format(calendar.getTime());
+                                    // Formatear la fecha para mostrar el día de la semana
+                                    String fechaFormateada = displayFormat.format(fechaRecordatorio);
+                                    String fechaConHora12 = dateFormat.format(calendar.getTime());
+
+                                    // Crear un nuevo recordatorio según la fecha y la nueva hora
+                                    Rtext recordatorio = new Rtext(fechaConHora12, horaFormateada, titulo, descripcion);
+                                    recordatorioList.add(recordatorio);
+
+                                }
+
+                                // Mover al siguiente día en el calendario
+                                calendar.add(Calendar.DATE, 1);
+                                calendar.set(Calendar.HOUR_OF_DAY, 0);  // Reiniciar horas para el nuevo día
+                            }
+                        } else {
+                            Log.e("Principal1", "El campo 'fecha' es nulo.");
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        Log.e("Principal1", "Error al procesar la fecha: " + e.getMessage(), e);
                     }
                 }
+
+                // Notificar al adaptador que la lista ha cambiado
                 adapter.notifyDataSetChanged();
             } else {
                 Log.d("Firestore", "Error al obtener recordatorios: ", task.getException());
@@ -159,11 +269,23 @@ public class Principal1Fragment extends Fragment {
         });
     }
 
+
+
+
+
+
+
+
+
+
+
+
     private void cargarFragmento(Fragment fragment) {
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, new RegistrarseFragment());
+        fragmentTransaction.addToBackStack(null);  // Para permitir volver al login si es necesario
+        fragmentTransaction.commit();
     }
 
     private void mostrarDialogoCambioMascota() {
@@ -230,3 +352,6 @@ public class Principal1Fragment extends Fragment {
                 });
     }
 }
+//arreglar fragments del menu
+//error linea 224
+//lograr que en la parte de arriba aparezca la fecha en la que se debe dar la pildora
