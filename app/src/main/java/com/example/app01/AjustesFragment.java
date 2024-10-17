@@ -19,10 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import static androidx.core.content.ContentProviderCompat.requireContext;
-import static java.security.AccessController.getContext;
-
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -33,7 +29,7 @@ public class AjustesFragment extends Fragment implements ProfileAdapter.OnItemCl
     private List<ProfileItem> profileItems;
     private ProfileAdapter adapter;
     private FirebaseFirestore db;
-    private String userId = "USER_ID";  // Debes obtener el ID del usuario actual
+    private String userId;
     private ImageView button1;
 
     @Nullable
@@ -44,6 +40,7 @@ public class AjustesFragment extends Fragment implements ProfileAdapter.OnItemCl
 
         // Inicializar Firestore
         db = FirebaseFirestore.getInstance();
+        userId = requireActivity().getIntent().getStringExtra("userId");
 
         // Configurar el RecyclerView
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
@@ -79,7 +76,7 @@ public class AjustesFragment extends Fragment implements ProfileAdapter.OnItemCl
                 // Obtener los campos del usuario
                 String nombre = documentSnapshot.getString("nombre");
                 String apellido = documentSnapshot.getString("apellido");
-                String correo = documentSnapshot.getString("correo");
+                String correo = documentSnapshot.getString("email");
 
                 // Agregar los datos al adaptador
                 profileItems.clear();
@@ -101,7 +98,80 @@ public class AjustesFragment extends Fragment implements ProfileAdapter.OnItemCl
 
     @Override
     public void onItemClick(ProfileItem item, int position) {
-        showEditDialog(item, position);
+        if (item.getLabel().equals("Cambiar contraseña: ")) {
+            // Si el usuario quiere cambiar la contraseña, mostrar el diálogo de confirmación
+            mostrarDialogoConfirmarPassword(item, position);
+        } else {
+            // Para otros campos, simplemente mostrar el diálogo de edición
+            showEditDialog(item, position);
+        }
+    }
+
+    private void mostrarDialogoConfirmarPassword(ProfileItem item, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Confirmar contraseña actual");
+
+        // Entrada de texto para la contraseña actual
+        final EditText input = new EditText(getContext());
+        input.setHint("Contraseña actual");
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirmar", (dialog, which) -> {
+            String passwordIngresada = input.getText().toString();
+            confirmarPasswordActual(passwordIngresada, item, position);
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void confirmarPasswordActual(String passwordIngresada, ProfileItem item, int position) {
+        // Obtener la contraseña almacenada en Firestore
+        DocumentReference userRef = db.collection("users").document(userId);
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String passwordActual = documentSnapshot.getString("password");
+
+                // Comprobar si la contraseña ingresada coincide con la contraseña actual
+                if (passwordIngresada.equals(passwordActual)) {
+                    // Si la contraseña es correcta, permitir cambiar la contraseña
+                    mostrarDialogoCambiarPassword(item, position);
+                } else {
+                    // Mostrar un mensaje de error si la contraseña no coincide
+                    AlertDialog.Builder errorDialog = new AlertDialog.Builder(requireContext());
+                    errorDialog.setTitle("Error");
+                    errorDialog.setMessage("La contraseña actual es incorrecta.");
+                    errorDialog.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                    errorDialog.show();
+                }
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("AjustesFragment", "Error al obtener la contraseña del usuario", e);
+        });
+    }
+
+    private void mostrarDialogoCambiarPassword(ProfileItem item, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Cambiar contraseña");
+
+        // Entrada de texto para la nueva contraseña
+        final EditText input = new EditText(getContext());
+        input.setHint("Nueva contraseña");
+        builder.setView(input);
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String newPassword = input.getText().toString();
+            profileItems.set(position, new ProfileItem(item.getLabel(), newPassword));
+            adapter.notifyItemChanged(position);
+            actualizarDatosUsuario("password", newPassword);  // Actualizar contraseña en Firestore
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 
     private void showEditDialog(ProfileItem item, int position) {
@@ -136,6 +206,8 @@ public class AjustesFragment extends Fragment implements ProfileAdapter.OnItemCl
             campo = "apellido";
         } else if (label.equals("Correo: ")) {
             campo = "correo";
+        } else if (label.equals("password")) {
+            campo = "password";  // Asegurarse de que actualice la contraseña
         }
 
         // Subir los datos modificados a Firestore

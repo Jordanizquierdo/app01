@@ -91,9 +91,15 @@ public class Principal1Fragment extends Fragment {
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             } else if (id == R.id.op2) {
+                HistorialFragment historialFragment = new HistorialFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("nombreMascota", tvPetName.getText().toString()); // Nombre de la mascota
+                bundle.putString("documentoId", userId);  // ID del documento
+                historialFragment.setArguments(bundle);
+
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, new HistorialFragment());
+                fragmentTransaction.replace(R.id.fragment_container, historialFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             } else if (id == R.id.op3) {

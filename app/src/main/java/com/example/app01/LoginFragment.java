@@ -27,7 +27,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 public class LoginFragment extends Fragment {
 
     private Button loginButton;
-    private Button registerButton;  // Agregar el botón de registro
+    private Button registerButton;
+    private Button btnAgregarDatos;
     private EditText emailField, passwordField;
     private FirebaseFirestore db;
 
@@ -46,13 +47,14 @@ public class LoginFragment extends Fragment {
         loginButton = view.findViewById(R.id.button);
         registerButton = view.findViewById(R.id.btn2);  // Inicializar el botón de registro
 
+
+
+
+
         // Configurar listener del botón de login
         loginButton.setOnClickListener(v -> {
             String correo = emailField.getText().toString();
             String contrasenia = passwordField.getText().toString();
-
-            // Comprobar credenciales de administrador
-
 
             // Verificar usuario en Firebase Firestore
             verificarUsuario(correo, contrasenia);
@@ -68,18 +70,21 @@ public class LoginFragment extends Fragment {
             fragmentTransaction.commit();
         });
 
+
+
+
+
         return view;
     }
 
     // Método para iniciar la nueva actividad Principal1
-    // Modificar el método iniciar para recibir el ID del documento
     private void iniciar(String userId) {
         Intent i = new Intent(getActivity(), activity1.class);
         i.putExtra("userId", userId);  // Pasar el ID del usuario
         startActivity(i);
     }
 
-    // Modificar verificarUsuario para enviar el ID del documento
+    // Verificar el usuario en Firebase Firestore
     private void verificarUsuario(String correo, String contrasenia) {
         db.collection("users")
                 .whereEqualTo("email", correo)
@@ -106,5 +111,4 @@ public class LoginFragment extends Fragment {
                     }
                 });
     }
-
 }

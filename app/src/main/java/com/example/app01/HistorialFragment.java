@@ -13,54 +13,102 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HistorialFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private HistorialAdapter adapter;
-    private List<Consulta> consultas;
-    private ImageView button;
 
+    private FirebaseFirestore db;
+    private String userId, nombreMascota;
+    private RecyclerView recyclerView;
+    private ConsultaAdapter consultaAdapter;
+    private List<Consulta> listaConsultas = new ArrayList<>();
+
+    private ImageView button1;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_historial, container, false);
 
-        // Inicializar el RecyclerView
+        // Obtener los argumentos pasados desde Principal1Fragment
+        if (getArguments() != null) {
+            userId = getArguments().getString("documentoId");
+            nombreMascota = getArguments().getString("nombreMascota");
+        }
+
+        // Inicializar Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // Configurar RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView);
-        consultas = new ArrayList<>();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        consultaAdapter = new ConsultaAdapter(listaConsultas, this::mostrarDetalleConsulta);
+        recyclerView.setAdapter(consultaAdapter);
 
-        // Agregar consultas (puedes modificar estos datos o cargarlos dinámicamente)
-        consultas.add(new Consulta("Firulais", "5/10/2023"));
-        consultas.add(new Consulta("Firulais", "2/3/2024"));
-        consultas.add(new Consulta("Rony", "5/3/2024"));
+        // Cargar las consultas desde Firebase
+        cargarConsultasDesdeFirebase();
 
-        // Inicializar el adaptador con el listener de clic y contexto
-        adapter = new HistorialAdapter(consultas, getContext(), new HistorialAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Consulta consulta) {
-                // Acción al hacer clic en un ítem
-                Toast.makeText(getContext(), "Consulta de: " + consulta.getNombreMascota(), Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        // Configurar el adaptador en el RecyclerView
-        recyclerView.setAdapter(adapter);
 
-        // Configurar el botón para regresar a la actividad anterior
-        button = view.findViewById(R.id.back_login2);
-        button.setOnClickListener(v -> {
+        button1 = view.findViewById(R.id.back_login2);
+
+        button1.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, new Principal1Fragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
-
         return view;
+
+    }
+
+    private void cargarConsultasDesdeFirebase() {
+        if (userId != null && nombreMascota != null) {
+            db.collection("users")
+                    .document(userId)
+                    .collection("mascotas")
+                    .document(nombreMascota)
+                    .collection("consultas")
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        listaConsultas.clear();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            Consulta consulta = document.toObject(Consulta.class);
+                            consulta.setDocumentoId(document.getId()); // Guardar el ID del documento
+                            listaConsultas.add(consulta);
+                        }
+                        consultaAdapter.notifyDataSetChanged();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "Error al cargar consultas", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    // Método para mostrar los detalles de una consulta
+    private void mostrarDetalleConsulta(Consulta consulta) {
+        DetalleConsultaFragment detalleConsultaFragment = new DetalleConsultaFragment();
+        Bundle bundle = new Bundle();
+
+        bundle.putString("userId", userId);
+        bundle.putString("nombreMascota", nombreMascota);
+        bundle.putString("documentoId", consulta.getDocumentoId()); // Aquí pasas el ID del documento
+
+        detalleConsultaFragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, detalleConsultaFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 }

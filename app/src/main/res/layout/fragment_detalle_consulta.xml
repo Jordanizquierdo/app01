@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".DetalleConsultaActivity">
+    tools:context=".DetalleConsultaFragment">
 
     <!-- Título -->
 
@@ -50,7 +50,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_text"
         android:paddingLeft="5dp"
-        android:text="- Suplemento articular 1 cápsula/8 horas\n- Jarabe Rostrum 2ml/6 horas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tratamientoLabel" />
@@ -64,7 +63,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_text"
         android:paddingLeft="5dp"
-        android:text="Francisco Tapia"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/veterinarioLabel" />
@@ -78,7 +76,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_text"
         android:paddingLeft="5dp"
-        android:text="La mascota cuenta con malformaciones vertebrales congénitas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/diagnosticoLabel" />
@@ -107,7 +104,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_text"
         android:paddingLeft="5dp"
-        android:text="5/10/2023"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -137,7 +133,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_text"
         android:paddingLeft="5dp"
-        android:text="Firulais"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
