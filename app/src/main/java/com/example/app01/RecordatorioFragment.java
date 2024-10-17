@@ -18,6 +18,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
@@ -124,7 +126,13 @@ public class RecordatorioFragment extends Fragment {
                             Toast.makeText(getActivity(), "Recordatorio guardado en Firestore", Toast.LENGTH_SHORT).show();
                             limpiarCampos();
                             // Cambiar al fragmento Principal1Fragment después de guardar
-                            cargarFragmento(new Principal1Fragment());
+
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.replace(R.id.fragment_container, new Principal1Fragment());
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(getActivity(), "Error al guardar en Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();

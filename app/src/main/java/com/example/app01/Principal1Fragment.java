@@ -151,13 +151,25 @@ public class Principal1Fragment extends Fragment {
         button = view.findViewById(R.id.b3);
         button.setOnClickListener(v -> {
             if (fecha1 != null) {
+
+
+
+
                 RecordatorioFragment recordatorioFragment = new RecordatorioFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("nombreMascota", tvPetName.getText().toString());
-                bundle.putString("userId", userId);
-                bundle.putString("fecha_seleccionada", fecha1);  // Añadir la fecha seleccionada
-                recordatorioFragment.setArguments(bundle);
-                cargarFragmento(recordatorioFragment);
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("nombreMascota", tvPetName.getText().toString());
+                bundle1.putString("userId", userId);
+                bundle1.putString("fecha_seleccionada", fecha1);  // Añadir la fecha seleccionada // ID del documento
+                recordatorioFragment.setArguments(bundle1);
+
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, recordatorioFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+
+
+
             }
         });
 
