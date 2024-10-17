@@ -107,9 +107,11 @@ public class RegistrarseFragment extends Fragment {
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(getContext(), "Usuario registrado exitosamente", Toast.LENGTH_SHORT).show();
 
-                    // Iniciar la nueva Activity después de registrar
-                    Intent intent = new Intent(getActivity(), activity1.class);
-                    startActivity(intent);
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_container, new LoginFragment());
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error al registrar el usuario", Toast.LENGTH_SHORT).show();

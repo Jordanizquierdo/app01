@@ -4,9 +4,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.app01.Horario;
 
 import java.util.List;
 
@@ -34,13 +35,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
     @Override
     public void onBindViewHolder(@NonNull TimeSlotViewHolder holder, int position) {
         Horario horario = timeSlots.get(position);
-        holder.timeSlotTextView.setText(horario.getFormattedTimeSlot());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onItemClick(horario);
-            }
-        });
+        holder.bind(horario, listener);
     }
 
     @Override
@@ -49,11 +44,16 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
     }
 
     public static class TimeSlotViewHolder extends RecyclerView.ViewHolder {
-        public TextView timeSlotTextView;
+        private TextView timeSlotTextView;
 
         public TimeSlotViewHolder(@NonNull View itemView) {
             super(itemView);
             timeSlotTextView = itemView.findViewById(R.id.timeSlotTextView);
+        }
+
+        public void bind(Horario horario, OnItemClickListener listener) {
+            timeSlotTextView.setText(horario.getFormattedTimeSlot());
+            itemView.setOnClickListener(v -> listener.onItemClick(horario));
         }
     }
 }

@@ -103,9 +103,13 @@ public class Principal1Fragment extends Fragment {
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             } else if (id == R.id.op3) {
+                ReservarFragment reservarFragment = new ReservarFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("userId", userId);  // Agregar el userId al Bundle
+                reservarFragment.setArguments(bundle); // Establecer el Bundle en el fragmento
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, new ReservarFragment());
+                fragmentTransaction.replace(R.id.fragment_container, reservarFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
@@ -200,6 +204,9 @@ public class Principal1Fragment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE MMM dd, hh:mm a", Locale.getDefault());
         SimpleDateFormat hourMinuteFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());  // Formato de 12 horas con AM/PM
 
+        // Obtener la fecha y hora actual
+        Date fechaActual = Calendar.getInstance().getTime();
+
         recordatoriosRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 recordatorioList.clear();  // Limpia la lista antes de agregar los nuevos recordatorios
@@ -242,17 +249,16 @@ public class Principal1Fragment extends Fragment {
                                     // Sumar el intervalo de horas
                                     calendar.add(Calendar.HOUR_OF_DAY, intervaloHoras);
 
-                                    // Formatear la nueva hora solo con hora y minutos
+                                    // Crear un nuevo recordatorio solo si es futuro
+                                    if (calendar.getTime().after(fechaActual)) {
+                                        String horaFormateada = hourMinuteFormat.format(calendar.getTime());
+                                        String fechaFormateada = displayFormat.format(fechaRecordatorio);
+                                        String fechaConHora12 = dateFormat.format(calendar.getTime());
 
-                                    String horaFormateada = hourMinuteFormat.format(calendar.getTime());
-                                    // Formatear la fecha para mostrar el día de la semana
-                                    String fechaFormateada = displayFormat.format(fechaRecordatorio);
-                                    String fechaConHora12 = dateFormat.format(calendar.getTime());
-
-                                    // Crear un nuevo recordatorio según la fecha y la nueva hora
-                                    Rtext recordatorio = new Rtext(fechaConHora12, horaFormateada, titulo, descripcion);
-                                    recordatorioList.add(recordatorio);
-
+                                        // Crear un nuevo recordatorio según la fecha y la nueva hora
+                                        Rtext recordatorio = new Rtext(fechaConHora12, horaFormateada, titulo, descripcion);
+                                        recordatorioList.add(recordatorio);
+                                    }
                                 }
 
                                 // Mover al siguiente día en el calendario
@@ -358,6 +364,3 @@ public class Principal1Fragment extends Fragment {
                 });
     }
 }
-//arreglar fragments del menu
-//error linea 224
-//lograr que en la parte de arriba aparezca la fecha en la que se debe dar la pildora

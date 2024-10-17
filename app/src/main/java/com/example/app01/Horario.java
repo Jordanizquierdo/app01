@@ -1,23 +1,23 @@
 package com.example.app01;
 
 public class Horario {
-    private String startTime;
-    private String endTime;
+    private String inicio;
+    private String fin;
 
-    public Horario(String startTime, String endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public Horario(String inicio, String fin) {
+        this.inicio = inicio;
+        this.fin = fin;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public String getInicio() {
+        return inicio;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public String getFin() {
+        return fin;
     }
 
     public String getFormattedTimeSlot() {
-        return startTime + " - " + endTime;
+        return inicio + " - " + fin;
     }
 }
